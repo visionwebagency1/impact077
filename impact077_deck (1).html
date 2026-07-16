@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impact077 × Minterest | Digitaal Voorstel</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#22332B; --ink-deep:#16211C; --oranje:#E8721C; --oranje-warm:#F08A3C;
+  --creme:#F5F3EC; --wit:#FFFFFF; --salie:#E3E6DA; --noord:#A9CBDD;
+  --disp:'Cabinet Grotesk',sans-serif; --body:'General Sans',sans-serif;
+  --ok:#3E7C4F; --no:#B0402E;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--body);background:var(--creme);color:var(--ink);-webkit-font-smoothing:antialiased}
+::selection{background:var(--oranje);color:var(--creme)}
+
+/* ============ DECK MECHANIEK ============ */
+.deck{position:relative;width:100%;height:100%}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:clamp(28px,5vw,80px) clamp(22px,6vw,90px);opacity:0;visibility:hidden;transform:translateY(26px) scale(.985);transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1),visibility 0s .55s;overflow:hidden}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .55s cubic-bezier(.22,1,.36,1),transform .55s cubic-bezier(.22,1,.36,1)}
+.slide.bg-wit{background:var(--wit)} .slide.bg-salie{background:var(--salie)}
+.slide.bg-ink{background:var(--ink-deep);color:var(--creme)} .slide.bg-oranje{background:var(--oranje);color:var(--ink)}
+
+/* HUD */
+.hud{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:18px;padding:16px clamp(22px,6vw,90px);pointer-events:none}
+.hud .count{font-family:var(--disp);font-weight:700;font-size:.9rem;letter-spacing:.06em;min-width:74px}
+.hud .segs{flex:1;display:flex;gap:5px}
+.hud .segs i{height:3px;flex:1;background:rgba(34,51,43,.15);border-radius:2px;overflow:hidden;position:relative}
+.hud .segs i b{position:absolute;inset:0;background:var(--oranje);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.hud .segs i.done b{transform:scaleX(1)}
+.hud .hint{font-size:.75rem;opacity:.5}
+.on-dark .hud .count,.on-dark .hud .hint{color:var(--creme)}
+.on-dark .hud .segs i{background:rgba(245,243,236,.2)}
+.navbtn{position:fixed;top:50%;transform:translateY(-50%);z-index:51;width:52px;height:52px;border-radius:50%;border:1.5px solid rgba(34,51,43,.25);background:rgba(245,243,236,.75);backdrop-filter:blur(6px);color:var(--ink);font-size:19px;cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center}
+.navbtn:hover{background:var(--oranje);color:var(--creme);border-color:var(--oranje)}
+.navbtn.prev{left:18px}.navbtn.next{right:18px}
+@media(max-width:820px){.navbtn{display:none}.hud .hint{display:none}}
+
+/* ============ TYPO ============ */
+.eyebrow{font-size:12.5px;letter-spacing:.15em;text-transform:uppercase;font-weight:600;color:var(--oranje);margin-bottom:20px}
+.bg-oranje .eyebrow{color:var(--ink)}
+h1,h2{font-family:var(--disp);font-weight:800;line-height:1.02;letter-spacing:-.02em}
+h1{font-size:clamp(2.5rem,7.2vw,5.6rem)}
+h2{font-size:clamp(1.8rem,4.4vw,3.4rem);margin-bottom:22px}
+h3{font-family:var(--disp);font-weight:700;font-size:clamp(1.05rem,1.8vw,1.35rem);line-height:1.15}
+p.lead{font-size:clamp(1rem,1.5vw,1.22rem);line-height:1.6;max-width:640px}
+.accent{color:var(--oranje)}
+.outline{color:transparent;-webkit-text-stroke:2.5px var(--ink)}
+.bg-ink .outline,.bg-oranje .outline{-webkit-text-stroke:2.5px var(--creme)}
+.bg-oranje .outline{-webkit-text-stroke-color:var(--ink)}
+
+/* in-slide reveals: spelen af wanneer slide active wordt */
+.r{opacity:0;transform:translateY(26px)}
+.active .r{animation:rin .7s cubic-bezier(.22,1,.36,1) forwards}
+.active .r.d1{animation-delay:.12s}.active .r.d2{animation-delay:.24s}.active .r.d3{animation-delay:.36s}
+.active .r.d4{animation-delay:.48s}.active .r.d5{animation-delay:.6s}.active .r.d6{animation-delay:.72s}
+@keyframes rin{to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.r{opacity:1;transform:none}.active .r{animation:none}}
+
+/* ============ COMPONENTEN ============ */
+.grid{display:grid;gap:16px;margin-top:32px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.g2,.g3{grid-template-columns:1fr}.slide{justify-content:flex-start;padding-top:60px;overflow-y:auto}}
+.card{background:var(--wit);border-radius:18px;padding:24px 22px;border:1px solid rgba(34,51,43,.08)}
+.bg-ink .card{background:rgba(245,243,236,.06);border-color:rgba(245,243,236,.14);color:var(--creme)}
+.card h3{margin-bottom:9px}
+.card p{font-size:.93rem;line-height:1.55;opacity:.85}
+.card .num{font-family:var(--disp);font-weight:800;font-size:1.9rem;color:var(--oranje);line-height:1;margin-bottom:10px}
+.tag{display:inline-block;padding:4px 13px;border-radius:999px;font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.tag.o{background:var(--oranje);color:var(--creme)} .tag.s{background:var(--salie);color:var(--ink)}
+
+.pain{display:flex;align-items:flex-start;gap:15px;padding:15px 0;border-bottom:1px solid rgba(34,51,43,.12)}
+.pain .x{min-width:34px;height:34px;border-radius:50%;background:rgba(176,64,46,.12);color:var(--no);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.pain b{display:block;font-size:1.02rem;margin-bottom:2px}
+.pain span{opacity:.72;font-size:.9rem;line-height:1.45}
+
+.stats{display:flex;gap:clamp(22px,5vw,64px);flex-wrap:wrap;margin-top:34px}
+.stat .v{font-family:var(--disp);font-weight:800;font-size:clamp(2.2rem,5vw,3.8rem);line-height:1;color:var(--oranje)}
+.stat .l{font-size:.9rem;margin-top:6px;opacity:.75;max-width:180px}
+
+.marq{position:absolute;left:0;right:0;overflow:hidden;white-space:nowrap;pointer-events:none}
+.marq .t{display:inline-block;font-family:var(--disp);font-weight:800;letter-spacing:.02em;animation:mq 30s linear infinite}
+@keyframes mq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){.marq .t{animation:none}}
+
+/* browser frame */
+.browser{background:var(--wit);border-radius:16px;box-shadow:0 26px 70px -28px rgba(22,33,28,.42);overflow:hidden;border:1px solid rgba(34,51,43,.1);color:var(--ink)}
+.browser .bar{display:flex;align-items:center;gap:7px;padding:10px 14px;background:var(--salie);border-bottom:1px solid rgba(34,51,43,.08)}
+.browser .bar i{width:10px;height:10px;border-radius:50%;background:rgba(34,51,43,.18)}
+.browser .bar .url{margin-left:8px;background:var(--wit);border-radius:7px;padding:4px 13px;font-size:11.5px;opacity:.7;flex:1;max-width:330px}
+
+/* ============ PORTAAL MOCK: shell met sidebar ============ */
+.portal{display:grid;grid-template-columns:208px 1fr;min-height:400px;font-size:.85rem}
+@media(max-width:900px){.portal{grid-template-columns:1fr}.portal .side{display:none}}
+.portal .side{background:var(--ink-deep);color:var(--creme);padding:16px 12px;display:flex;flex-direction:column}
+.portal .side .brand{font-family:var(--disp);font-weight:800;font-size:.95rem;padding:6px 10px 14px;letter-spacing:.02em}
+.portal .side .brand span{color:var(--oranje)}
+.portal .side a{display:flex;align-items:center;gap:9px;padding:7.5px 10px;border-radius:8px;color:var(--creme);text-decoration:none;font-size:.8rem;opacity:.72;margin-bottom:1px}
+.portal .side a .ic{width:17px;text-align:center;font-size:.85rem}
+.portal .side a.on{background:var(--oranje);opacity:1;font-weight:600}
+.portal .side .sec{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;opacity:.4;padding:12px 10px 5px}
+.portal .main{padding:18px 20px;background:var(--creme)}
+.portal .main .hi{font-family:var(--disp);font-weight:800;font-size:1.3rem;margin-bottom:3px}
+.portal .main .sub{font-size:.78rem;opacity:.6;margin-bottom:14px}
+.widgets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+@media(max-width:700px){.widgets{grid-template-columns:1fr}}
+.wg{background:var(--wit);border-radius:12px;padding:14px;border:1px solid rgba(34,51,43,.08)}
+.wg .wv{font-family:var(--disp);font-weight:800;font-size:1.7rem;color:var(--oranje)}
+.wg .wl{font-size:.72rem;opacity:.65;margin-top:2px}
+.rowline{display:flex;align-items:center;gap:10px;background:var(--wit);border:1px solid rgba(34,51,43,.08);border-radius:11px;padding:10px 12px;margin-bottom:7px}
+.rowline .dot{width:8px;height:8px;border-radius:50%;background:var(--oranje);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.rowline b{font-size:.8rem}
+.rowline span{font-size:.72rem;opacity:.6;margin-left:auto;white-space:nowrap}
+
+/* inbox mock + AI scan animatie */
+.inbox{display:grid;grid-template-columns:1.5fr 1fr;min-height:380px}
+@media(max-width:900px){.inbox{grid-template-columns:1fr}}
+.inbox-list{border-right:1px solid rgba(34,51,43,.08);padding:16px}
+.inbox-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.inbox-head b{font-family:var(--disp);font-size:1rem}
+.pill-sm{font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--salie)}
+.inv{display:flex;align-items:center;gap:11px;padding:11px;border-radius:11px;margin-bottom:7px;background:var(--creme);position:relative;overflow:hidden}
+.inv .doc{min-width:30px;height:36px;border-radius:5px;background:var(--wit);border:1px solid rgba(34,51,43,.15);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--no)}
+.inv .info{flex:1;min-width:0}
+.inv .info b{display:block;font-size:.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.inv .info span{font-size:.7rem;opacity:.6}
+.inv .amt{font-family:var(--disp);font-weight:700;font-size:.88rem;white-space:nowrap}
+.inv .acts{display:flex;gap:5px}
+.inv .acts u{width:27px;height:27px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;text-decoration:none}
+.uok{background:rgba(62,124,79,.14);color:var(--ok)} .uno{background:rgba(176,64,46,.12);color:var(--no)}
+.inv.done{opacity:.55}
+.inv .status{font-size:10px;font-weight:700;color:var(--ok);white-space:nowrap}
+/* de geanimeerde AI-rij */
+.inv.ai{border:1.5px solid var(--oranje)}
+.inv.ai .scan{position:absolute;top:0;bottom:0;width:44%;background:linear-gradient(90deg,transparent,rgba(232,114,28,.16),transparent);transform:translateX(-130%);}
+.active .inv.ai .scan{animation:scan 1.6s .8s ease-in-out 2}
+@keyframes scan{from{transform:translateX(-130%)}to{transform:translateX(330%)}}
+.inv.ai .fld-in{opacity:0}
+.active .inv.ai .f1{animation:rin .4s 1.4s forwards}
+.active .inv.ai .f2{animation:rin .4s 1.9s forwards}
+.active .inv.ai .f3{animation:rin .4s 2.4s forwards}
+.active .inv.ai .f4{animation:rin .4s 2.9s forwards}
+.aibadge{position:absolute;top:8px;right:10px;font-size:9px;font-weight:700;letter-spacing:.08em;color:var(--oranje)}
+.active .aibadge{animation:pulse 1.2s 3}
+.inbox-side{padding:16px;background:var(--creme)}
+.note{background:var(--wit);border-radius:11px;padding:11px 13px;margin-bottom:9px;border-left:3px solid var(--oranje)}
+.note .who{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.av{width:24px;height:24px;border-radius:50%;background:var(--ink);color:var(--creme);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.av.o{background:var(--oranje)} .av.n{background:var(--noord);color:var(--ink)}
+.note .who b{font-size:.78rem} .note .who span{font-size:.68rem;opacity:.55}
+.note p{font-size:.8rem;line-height:1.45;opacity:.85}
+.chatline{display:flex;gap:7px;margin-top:12px}
+.chatline i{flex:1;border:1px solid rgba(34,51,43,.15);border-radius:999px;padding:8px 15px;font-size:.78rem;background:var(--wit);font-style:normal;opacity:.5}
+.chatline u{background:var(--oranje);color:var(--creme);border-radius:999px;padding:8px 15px;font-weight:600;text-decoration:none;font-size:.8rem}
+
+/* factuur-bouw mock */
+.factuur{background:var(--wit);border-radius:14px;padding:22px;border:1px solid rgba(34,51,43,.1);max-width:430px;color:var(--ink)}
+.factuur .fh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.factuur .fh .lg{font-family:var(--disp);font-weight:800;font-size:1.05rem}
+.factuur .fh .lg span{color:var(--oranje)}
+.factuur .fh .fnr{text-align:right;font-size:.72rem;opacity:.6}
+.factuur .fl{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(34,51,43,.09);font-size:.82rem}
+.factuur .fl.tot{font-family:var(--disp);font-weight:800;font-size:1rem;border-bottom:none;padding-top:12px}
+.factuur .fl.tot span{color:var(--oranje)}
+.fbtns{display:flex;gap:8px;margin-top:14px}
+.fbtns u{text-decoration:none;font-size:.78rem;font-weight:600;padding:9px 16px;border-radius:999px}
+.fb1{background:var(--oranje);color:var(--creme)} .fb2{background:var(--salie);color:var(--ink)}
+
+/* tijd tabel */
+.tijd{width:100%;border-collapse:collapse;margin-top:24px;font-size:clamp(.82rem,1.3vw,.98rem)}
+.tijd th{font-family:var(--disp);text-align:left;padding:11px 10px;border-bottom:2px solid var(--ink);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase}
+.tijd td{padding:12px 10px;border-bottom:1px solid rgba(34,51,43,.12);line-height:1.4}
+.tijd td.win{font-family:var(--disp);font-weight:800;color:var(--oranje);white-space:nowrap}
+.tijd tr td:first-child{font-weight:600}
+.tijd td small{display:block;opacity:.6;font-weight:400;font-size:.78em}
+
+/* investering */
+.prijs{display:grid;grid-template-columns:1.2fr 1fr;gap:26px;margin-top:26px;align-items:start}
+@media(max-width:900px){.prijs{grid-template-columns:1fr}}
+.prijskaart{background:rgba(245,243,236,.07);border:1.5px solid var(--oranje);border-radius:20px;padding:30px}
+.prijskaart .p{font-family:var(--disp);font-weight:800;font-size:clamp(2.6rem,5vw,4rem);color:var(--oranje);line-height:1}
+.prijskaart .ps{font-size:.85rem;opacity:.7;margin:6px 0 18px}
+.prijskaart li{list-style:none;padding:7px 0 7px 26px;position:relative;font-size:.92rem;border-bottom:1px solid rgba(245,243,236,.1)}
+.prijskaart li:before{content:'✓';position:absolute;left:0;color:var(--oranje);font-weight:700}
+.waarde .wr{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(245,243,236,.14);font-size:.9rem}
+.waarde .wr s{opacity:.55}
+.waarde .wt{font-family:var(--disp);font-weight:800;font-size:1.15rem;padding-top:14px;display:flex;justify-content:space-between}
+.waarde .wt s{color:var(--no);opacity:.9}
+.vriend{margin-top:18px;background:rgba(232,114,28,.12);border-radius:14px;padding:16px 18px;font-size:.9rem;line-height:1.5}
+.vriend b{color:var(--oranje)}
+.mnd{margin-top:14px;display:flex;align-items:baseline;gap:10px}
+.mnd .p2{font-family:var(--disp);font-weight:800;font-size:1.6rem}
+.mnd span{font-size:.82rem;opacity:.7}
+.logo-lock{display:flex;align-items:center;gap:12px;font-family:var(--disp);font-weight:800;font-size:1rem}
+.logo-lock .x{opacity:.4;font-weight:400}
+.livebtn{display:inline-flex;align-items:center;gap:10px;background:var(--oranje);color:var(--creme);text-decoration:none;font-weight:600;padding:14px 26px;border-radius:999px;font-size:.95rem;transition:background .2s;margin-top:22px}
+.livebtn:hover{background:var(--ink)}
+.livebtn .ld{width:8px;height:8px;border-radius:50%;background:var(--creme);animation:pulse 1.6s infinite}
+kbd{background:var(--salie);border-radius:5px;padding:1px 7px;font-size:.72rem}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 COVER -->
+<section class="slide bg-creme">
+  <div class="marq" style="top:6%;opacity:.07"><div class="t" style="font-size:clamp(3rem,9vw,7rem)">IMPACT077 • KANSRIJK JONGERENWERK • IMPACT077 • KANSRIJK JONGERENWERK • </div></div>
+  <div class="r"><div class="eyebrow">Voorstel · Juli 2026</div></div>
+  <h1><span class="r d1" style="display:block">Meer tijd voor <span class="accent">jongeren.</span></span><span class="r d2" style="display:block">Minder tijd kwijt</span><span class="r d3" style="display:block">aan systemen.</span></h1>
+  <p class="lead r d4" style="margin-top:26px">Een nieuwe website en een slim werkportaal voor Impact077. Gebouwd rond één doel: het team op straat, niet achter een scherm.</p>
+  <div class="logo-lock r d5" style="margin-top:44px">IMPACT077 <span class="x">×</span> MINTEREST</div>
+</section>
+
+<!-- 2 HERKENNING -->
+<section class="slide bg-wit">
+  <div class="r"><div class="eyebrow">Waar staan we nu</div></div>
+  <h2 class="r d1">Het werk is sterk.<br>De systemen <span class="accent">remmen.</span></h2>
+  <div style="max-width:740px">
+    <div class="pain r d2"><div class="x">✕</div><div><b>Activiteiten bijwerken kost uren</b><span>Elke wijziging handmatig in Wix. Verouderde items blijven staan, jongeren kunnen niet filteren op hun wijk.</span></div></div>
+    <div class="pain r d3"><div class="x">✕</div><div><b>Facturen op twee mailboxen</b><span>Handmatig openen, overtypen, doorsturen. Foutgevoelig en niemand heeft het totaaloverzicht.</span></div></div>
+    <div class="pain r d4"><div class="x">✕</div><div><b>Vragen en aanmeldingen versnipperd</b><span>Formulier, losse mails, telefoontjes per werker. Geen centrale plek voor het team.</span></div></div>
+    <div class="pain r d5"><div class="x">✕</div><div><b>Verantwoording gemeente is handwerk</b><span>Bereik en resultaten worden achteraf bij elkaar gezocht in plaats van automatisch bijgehouden.</span></div></div>
+  </div>
+</section>
+
+<!-- 3 VISIE -->
+<section class="slide bg-ink">
+  <div class="r"><div class="eyebrow">Onze visie</div></div>
+  <h2 class="r d1">Eén platform.<br><span class="accent">Twee gezichten.</span></h2>
+  <div class="grid g2">
+    <div class="card r d2"><h3>De website</h3><p>Het nieuwe visitekaartje. Interactieve wijkenkaart van Venlo, activiteiten per gebied altijd actueel, het team groot in beeld. Snel, modern, gebouwd voor jongeren op mobiel én geloofwaardig voor gemeente en partners.</p><div style="margin-top:14px"><span class="tag o">Naar buiten</span></div></div>
+    <div class="card r d3"><h3>Het portaal</h3><p>Eén beveiligde werkomgeving voor het hele team. Activiteiten publiceren in 30 seconden, facturen automatisch uitgelezen door AI, alle aanvragen centraal, met eigen accounts, notities en chat.</p><div style="margin-top:14px"><span class="tag o">Naar binnen</span></div></div>
+  </div>
+</section>
+
+<!-- 4 DE WEBSITE (sterke slide + live preview) -->
+<section class="slide bg-salie">
+  <div class="r"><div class="eyebrow">De nieuwe website</div></div>
+  <h2 class="r d1">Gebouwd rond één vraag:<br><span class="accent">"wat is er te doen in mijn wijk?"</span></h2>
+  <div class="grid g2" style="align-items:center">
+    <div>
+      <p class="lead r d2">Fullscreen video-opening, levende animaties en een interactieve wijkenkaart: één tik en een jongere ziet de activiteiten, het jongerencentrum en de jongerenwerkers van zijn eigen wijk. Aanmelden kan in twee velden, direct vanaf de telefoon.</p>
+      <div class="stats">
+        <div class="stat r d3"><div class="v">5</div><div class="l">wijken, elk met eigen pagina en kleur</div></div>
+        <div class="stat r d4"><div class="v">1<span style="font-size:.5em"> tik</span></div><div class="l">van homepage naar contact met een werker</div></div>
+        <div class="stat r d5"><div class="v">0</div><div class="l">tracking cookies, privacy-proof voor jongerenwerk</div></div>
+      </div>
+      <a class="livebtn r d6" id="livelink" href="#" target="_blank" rel="noopener"><span class="ld"></span> Bekijk de live preview</a>
+    </div>
+    <div class="browser r d3">
+      <div class="bar"><i></i><i></i><i></i><div class="url">impact077.nl · preview</div></div>
+      <div style="padding:26px 24px;background:var(--creme)">
+        <div style="font-size:11px;letter-spacing:.14em;color:var(--oranje);font-weight:600;margin-bottom:10px">KANSRIJK JONGERENWERK IN VENLO</div>
+        <div style="font-family:var(--disp);font-weight:800;font-size:clamp(1.6rem,3vw,2.4rem);line-height:1.05"><span style="color:var(--oranje)">Impact</span> maken<br>begint in de wijk.</div>
+        <div style="display:flex;gap:8px;margin-top:16px"><span class="tag o">Ontdek jouw wijk →</span><span class="tag s">Activiteiten</span></div>
+        <div style="margin-top:18px;display:flex;gap:6px">
+          <div style="flex:1;height:52px;border-radius:9px;background:var(--noord);opacity:.7"></div>
+          <div style="flex:1;height:52px;border-radius:9px;background:var(--oranje);opacity:.7"></div>
+          <div style="flex:1;height:52px;border-radius:9px;background:var(--ink);opacity:.6"></div>
+          <div style="flex:1;height:52px;border-radius:9px;background:#C46A4A;opacity:.7"></div>
+        </div>
+        <div style="font-size:10px;opacity:.5;margin-top:8px;text-align:center">Interactieve wijkenkaart · geen mockup, dit staat al live</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 MOCKUP 1: DASHBOARD -->
+<section class="slide bg-wit">
+  <div class="r"><div class="eyebrow">Het portaal · Overzicht</div></div>
+  <h2 class="r d1">Eén inlog. <span class="accent">Alles.</span></h2>
+  <p class="lead r d2" style="margin-bottom:18px">Elke werker start de dag met een persoonlijk overzicht. Links staat alles wat het portaal kan, in gewone taal.</p>
+  <div class="browser r d3">
+    <div class="bar"><i></i><i></i><i></i><div class="url">portaal.impact077.nl</div></div>
+    <div class="portal">
+      <div class="side">
+        <div class="brand">IMPACT<span>077</span> Portaal</div>
+        <a class="on"><span class="ic">☀</span> Vandaag</a>
+        <div class="sec">Communicatie</div>
+        <a><span class="ic">✉</span> Inbox &amp; aanvragen</a>
+        <a><span class="ic">💬</span> Team-chat</a>
+        <div class="sec">Organisatie</div>
+        <a><span class="ic">📅</span> Activiteiten</a>
+        <a><span class="ic">✋</span> Aanmeldingen</a>
+        <a><span class="ic">🗓</span> Agenda-sync</a>
+        <a><span class="ic">✓</span> Taken</a>
+        <div class="sec">Financieel</div>
+        <a><span class="ic">📄</span> Facturen in</a>
+        <a><span class="ic">🧾</span> Facturen maken</a>
+        <div class="sec">Beheer</div>
+        <a><span class="ic">👥</span> Team &amp; rollen</a>
+        <a><span class="ic">✎</span> Website-teksten</a>
+        <a><span class="ic">📊</span> Rapportages</a>
+      </div>
+      <div class="main">
+        <div class="hi r d3">Goedemorgen Tarik 👋</div>
+        <div class="sub r d3">Woensdag 15 juli · dit vraagt vandaag je aandacht</div>
+        <div class="widgets">
+          <div class="wg r d4"><div class="wv" data-c="12">0</div><div class="wl">nieuwe aanmeldingen</div></div>
+          <div class="wg r d5"><div class="wv" data-c="3">0</div><div class="wl">facturen te keuren</div></div>
+          <div class="wg r d6"><div class="wv" data-c="5">0</div><div class="wl">berichten in de inbox</div></div>
+        </div>
+        <div class="rowline r d5"><div class="dot"></div><b>Vandaag 17:00 · Voetbaltoernooi + BBQ</b><span>JACX Blerick · 24 aanmeldingen</span></div>
+        <div class="rowline r d6"><div class="dot" style="background:var(--ok)"></div><b>Taak: zaalverhuur terugbellen</b><span>vandaag · Murat</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 MOCKUP 2: SLIMME INBOX -->
+<section class="slide bg-ink">
+  <div class="r"><div class="eyebrow">Het portaal · Facturen in</div></div>
+  <h2 class="r d1">AI leest. <span class="accent">Jij keurt.</span></h2>
+  <p class="lead r d2" style="margin-bottom:16px">Beide mailboxen gekoppeld via Microsoft 365. Elke factuur wordt automatisch uitgelezen: leverancier, nummer, bedrag, BTW, vervaldatum. Goedkeuren is één klik. Overleggen doe je ernaast, bij de factuur zelf.</p>
+  <div class="browser r d3">
+    <div class="bar"><i></i><i></i><i></i><div class="url">portaal.impact077.nl/facturen</div></div>
+    <div class="inbox">
+      <div class="inbox-list">
+        <div class="inbox-head"><b>Facturen</b><span class="pill-sm">2 mailboxen · live</span></div>
+        <div class="inv ai"><div class="scan"></div><div class="aibadge">AI LEEST UIT…</div><div class="doc">PDF</div><div class="info"><b class="fld-in f1">Sportbedrijf Venlo · Zaalhuur juli</b><span><i class="fld-in f2" style="font-style:normal">F-2026-0341 · BTW 21%</i> <i class="fld-in f3" style="font-style:normal">· vervalt 28 jul</i></span></div><div class="amt fld-in f4">€ 840,00</div><div class="acts"><u class="uok">✓</u><u class="uno">✕</u></div></div>
+        <div class="inv"><div class="doc">PDF</div><div class="info"><b>Cateraar De Buurt · BBQ Blerick</b><span>2026-118 · BTW 9% · vervalt 1 aug</span></div><div class="amt">€ 312,50</div><div class="acts"><u class="uok">✓</u><u class="uno">✕</u></div></div>
+        <div class="inv done"><div class="doc">PDF</div><div class="info"><b>Toverland Groepstickets</b><span>INV-88214 · BTW 9%</span></div><div class="amt">€ 1.245,00</div><div class="status">✓ Tarik</div></div>
+        <div class="inv done"><div class="doc">PDF</div><div class="info"><b>Drukkerij Limburg · Flyers</b><span>DL-2026-077 · BTW 21%</span></div><div class="amt">€ 189,00</div><div class="status">✓ Johnny</div></div>
+        <div style="font-size:10.5px;opacity:.55;padding:6px 2px">Goedgekeurd? Automatisch op de betaallijst en klaar voor de boekhouder.</div>
+      </div>
+      <div class="inbox-side">
+        <div class="inbox-head"><b>Notities bij deze factuur</b></div>
+        <div class="note r d4"><div class="who"><div class="av o">A</div><b>Ayoub</b><span>11:42</span></div><p>Zaalhuur klopt, maar is dit incl. de extra vrijdag?</p></div>
+        <div class="note r d5"><div class="who"><div class="av">T</div><b>Tarik</b><span>11:56</span></div><p>Ja, regel 2 van de factuur. Kan goedgekeurd 👍</p></div>
+        <div class="chatline r d6"><i>Reageer of tag een collega…</i><u>→</u></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 MOCKUP 3: FACTUREN MAKEN -->
+<section class="slide bg-salie">
+  <div class="r"><div class="eyebrow">Het portaal · Facturen uit</div></div>
+  <h2 class="r d1">Zelf facturen sturen,<br>in <span class="accent">eigen huisstijl.</span></h2>
+  <div class="grid g2" style="align-items:center">
+    <div>
+      <p class="lead r d2">Niet alleen inkomend: Impact077 maakt en verstuurt facturen ook vanuit het portaal. Strak in eigen branding, met automatische nummering en BTW.</p>
+      <div style="margin-top:20px">
+        <div class="pain r d3" style="border:none;padding:8px 0"><div class="x" style="background:rgba(62,124,79,.14);color:var(--ok)">✓</div><div><b>Betaalstatus live</b><span>Zie direct wat betaald is en wat openstaat.</span></div></div>
+        <div class="pain r d4" style="border:none;padding:8px 0"><div class="x" style="background:rgba(62,124,79,.14);color:var(--ok)">✓</div><div><b>Automatische herinnering</b><span>Te laat betaald? Het portaal stuurt zelf een nette reminder.</span></div></div>
+        <div class="pain r d5" style="border:none;padding:8px 0"><div class="x" style="background:rgba(62,124,79,.14);color:var(--ok)">✓</div><div><b>Boekhoudkoppeling</b><span>In en uit gaat automatisch als nette export naar de boekhouder.</span></div></div>
+      </div>
+    </div>
+    <div class="factuur r d3">
+      <div class="fh"><div class="lg">IMPACT<span>077</span></div><div class="fnr">FACTUUR I077-2026-014<br>15 juli 2026</div></div>
+      <div class="fl r d4"><span>Workshop weerbaarheid · Basisschool De Regenboog</span><span>€ 450,00</span></div>
+      <div class="fl r d5"><span>Begeleiding sportdag · 2 werkers</span><span>€ 380,00</span></div>
+      <div class="fl r d5"><span>BTW 21%</span><span>€ 174,30</span></div>
+      <div class="fl tot r d6"><span>Totaal</span><span>€ 1.004,30</span></div>
+      <div class="fbtns r d6"><u class="fb1">Versturen →</u><u class="fb2">PDF</u></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 SAMENWERKEN -->
+<section class="slide bg-wit">
+  <div class="r"><div class="eyebrow">Het portaal · Samenwerken</div></div>
+  <h2 class="r d1">Het hele team.<br><span class="accent">Eén omgeving.</span></h2>
+  <div class="grid g3">
+    <div class="card r d2"><div class="num">→</div><h3>Eigen account, eigen rol</h3><p>Iedereen logt veilig in. Bestuurders zien alles, werkers hun eigen wijk. Zelf in te stellen.</p></div>
+    <div class="card r d3"><div class="num">→</div><h3>Notities en chat</h3><p>Overleg bij het item zelf: een notitie bij een factuur, een tag naar een collega. Geen losse appjes meer.</p></div>
+    <div class="card r d4"><div class="num">→</div><h3>Agenda-sync</h3><p>Activiteiten waar jij aan gekoppeld bent verschijnen automatisch in je eigen Outlook-agenda.</p></div>
+    <div class="card r d3"><div class="num">→</div><h3>Taken aan alles</h3><p>Hang een actiepunt aan een factuur, bericht of activiteit, met deadline en eigenaar. Niets valt meer tussen wal en schip.</p></div>
+    <div class="card r d4"><div class="num">→</div><h3>Aanmeldingen + reminders</h3><p>Jongeren krijgen automatisch een bevestiging en een reminder vooraf. Minder no-shows, vollere activiteiten.</p></div>
+    <div class="card r d5"><div class="num">→</div><h3>Website-teksten beheren</h3><p>Teksten en foto's zelf aanpassen zonder ontwikkelaar en zonder dat het design kan breken.</p></div>
+  </div>
+</section>
+
+<!-- 10 TIJDWINST -->
+<section class="slide bg-wit">
+  <div class="r"><div class="eyebrow">Wat het oplevert</div></div>
+  <h2 class="r d1">Reken het uit in <span class="accent">uren.</span></h2>
+  <table class="tijd r d2">
+    <tr><th>Taak</th><th>Hoe het nu gaat</th><th>Hoe het straks gaat</th><th>Winst</th></tr>
+    <tr class="r d3"><td>Activiteiten op de site</td><td>Alles handmatig in Wix zetten en bijhouden<small>± 3 uur per week</small></td><td>Formulier van 30 sec, verlopen items verdwijnen vanzelf<small>± 15 min per week</small></td><td class="win">≈ 2,5 u/week</td></tr>
+    <tr class="r d4"><td>Facturen verwerken</td><td>Twee mailboxen openen, overtypen, doorsturen<small>± 4 uur per week</small></td><td>AI leest alles uit, jij klikt ✓, export naar boekhouder<small>± 30 min per week</small></td><td class="win">≈ 3,5 u/week</td></tr>
+    <tr class="r d5"><td>Vragen en aanmeldingen</td><td>Losse mails doorsturen naar de juiste collega<small>± 2 uur per week</small></td><td>Automatisch bij de juiste wijk, antwoorden vanuit één inbox<small>± 45 min per week</small></td><td class="win">≈ 1 u/week</td></tr>
+  </table>
+  <div class="stats">
+    <div class="stat r d5"><div class="v"><span data-c="7">0</span> u</div><div class="l">per week terug naar het echte werk op straat</div></div>
+    <div class="stat r d6"><div class="v"><span data-c="350">0</span> u</div><div class="l">per jaar: meer dan twee maanden werktijd van een medewerker</div></div>
+  </div>
+  <p class="r d6" style="margin-top:18px;opacity:.7;max-width:640px;font-size:.9rem">In jullie eigen woorden: "als dat een administratief medewerker aan kosten bespaart, is het wel handig." Dit systeem doet precies dat. Elke week opnieuw.</p>
+</section>
+
+<!-- 11 INVESTERING -->
+<section class="slide bg-ink">
+  <div class="r"><div class="eyebrow">Investering</div></div>
+  <h2 class="r d1">Alles-in-één.<br><span class="accent">Eén prijs.</span></h2>
+  <div class="prijs">
+    <div class="prijskaart r d2">
+      <div class="p">€ 2.500</div>
+      <div class="ps">eenmalig · alles inclusief · vaste prijs</div>
+      <ul>
+        <li>Volledig nieuwe maatwerk website met animaties en wijkenkaart</li>
+        <li>Activiteitensysteem: publiceren in 30 seconden, aanmelden op de site</li>
+        <li>Slimme inbox: AI-factuurverwerking via Microsoft 365, goedkeuren met één klik</li>
+        <li>Facturen maken en versturen in eigen huisstijl, met betaalstatus</li>
+        <li>Eigen accounts voor het hele team, notities, chat, taken en agenda-sync</li>
+        <li>Website-teksten zelf beheren, zonder ontwikkelaar</li>
+      </ul>
+      <div class="mnd"><div class="p2">€ 50</div><span>per maand · hosting, support, beveiliging en beheer</span></div>
+    </div>
+    <div class="waarde r d3">
+      <div style="font-family:var(--disp);font-weight:700;margin-bottom:6px;font-size:1.05rem">Normale marktwaarde van dit traject:</div>
+      <div style="font-family:var(--disp);font-weight:800;font-size:clamp(2.2rem,4.5vw,3.4rem);line-height:1"><s style="color:var(--no);opacity:.9">€ 14.500</s></div>
+      <div style="font-size:.88rem;opacity:.7;margin-top:8px;line-height:1.5">Maatwerk website, portaal met accounts en rollen, AI-factuurverwerking en een eigen facturatiemodule: los ingekocht kom je daar ruim overheen.</div>
+      <div class="vriend r d4">Waarom dan € 2.500? Dit voorstel komt er via onze goede vriend <b>Ayoub</b>. Voor Impact077 rekenen we vriendenprijs, en dit project wordt onze showcase voor jongerenwerk in heel Nederland.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 CTA -->
+<section class="slide bg-oranje" style="text-align:center;align-items:center">
+  <div class="marq" style="top:8%;opacity:.14"><div class="t" style="font-size:clamp(2.4rem,7vw,5.5rem)">READY TO MAKE IMPACT? • READY TO MAKE IMPACT? • </div></div>
+  <h1 class="r">Ready to<br>make impact?</h1>
+  <p class="lead r d2" style="margin:22px auto 0">De homepage staat al live als preview. Eén akkoord en binnen enkele weken draait alles.</p>
+  <div class="logo-lock r d3" style="justify-content:center;margin-top:40px">IMPACT077 <span class="x">×</span> MINTEREST</div>
+</section>
+
+</div>
+
+<button class="navbtn prev" aria-label="Vorige slide">←</button>
+<button class="navbtn next" aria-label="Volgende slide">→</button>
+<div class="hud"><div class="count" id="cnt">01 / 12</div><div class="segs" id="segs"></div><div class="hint">klik of <kbd>→</kbd> voor volgende</div></div>
+
+<script>
+// LIVE PREVIEW LINK: zet hier de URL van de live homepage
+const LIVE_PREVIEW_URL = "https://VUL-HIER-DE-PREVIEW-URL-IN.vercel.app";
+document.getElementById('livelink').href = LIVE_PREVIEW_URL;
+
+const slides=[...document.querySelectorAll('.slide')];
+const segs=document.getElementById('segs');
+slides.forEach(()=>{const i=document.createElement('i');i.innerHTML='<b></b>';segs.appendChild(i)});
+const segEls=[...segs.children];
+let cur=0;
+function go(n){
+  if(n<0||n>=slides.length)return;
+  slides[cur].classList.remove('active');
+  cur=n;
+  const s=slides[cur];
+  s.classList.add('active');
+  document.body.classList.toggle('on-dark',s.classList.contains('bg-ink'));
+  document.getElementById('cnt').textContent=String(cur+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+  segEls.forEach((e,i)=>e.classList.toggle('done',i<=cur));
+  // tellers resetten en afspelen
+  s.querySelectorAll('[data-c]').forEach(el=>{
+    const end=+el.dataset.c;el.textContent='0';
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=end;return}
+    const t0=performance.now(),dur=1100;
+    (function tick(t){const p=Math.min((t-t0)/dur,1);el.textContent=Math.round(end*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(tick)})(t0);
+  });
+  // in-slide animaties herstarten
+  s.querySelectorAll('.r').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation=''});
+}
+document.querySelector('.next').onclick=()=>go(cur+1);
+document.querySelector('.prev').onclick=()=>go(cur-1);
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='Enter'||e.key==='PageDown'){e.preventDefault();go(cur+1)}
+  if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1)}
+  if(e.key==='Home')go(0); if(e.key==='End')go(slides.length-1);
+});
+// klik = volgende (behalve op links/knoppen)
+document.getElementById('deck').addEventListener('click',e=>{
+  if(e.target.closest('a,button,u'))return; go(cur+1);
+});
+// swipe
+let tx=null;
+addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{
+  if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>50)go(cur+(dx<0?1:-1));tx=null;
+},{passive:true});
+go(0);
+</script>
+</body>
+</html>
